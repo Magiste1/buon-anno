@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Buon Anno Amore! 💖🎆</title>
+
   <style>
     :root { --bg1:#0b1026; --bg2:#2a0b3f; --card: rgba(255,255,255,.10); --txt: #fff; }
     *{box-sizing:border-box}
@@ -21,7 +22,7 @@
       place-items:center;
       padding:24px;
       position:relative;
-      z-index:2;
+      z-index:5; /* sopra fuochi/coriandoli */
     }
     .card{
       width:min(720px, 92vw);
@@ -104,11 +105,11 @@
 
     /* coriandoli */
     .confetti{
-      position:absolute;
+      position:fixed;
       inset:0;
       overflow:hidden;
       pointer-events:none;
-      z-index:1;
+      z-index:2;
     }
     .c{
       position:absolute;
@@ -120,10 +121,17 @@
       border-radius:2px;
     }
     @keyframes fall{
-      to{
-        transform: translateY(110vh) rotate(720deg);
-      }
+      to{ transform: translateY(110vh) rotate(720deg); }
     }
+
+    /* fuochi */
+    #fireworks{
+      position:fixed;
+      inset:0;
+      z-index:4;          /* davanti ai coriandoli, dietro la card */
+      pointer-events:none; /* non blocca click */
+    }
+
     .tiny{
       opacity:.85;
       font-size: 13px;
@@ -133,7 +141,11 @@
 </head>
 
 <body>
+  <!-- coriandoli -->
   <div class="confetti" id="confetti"></div>
+
+  <!-- fuochi d'artificio -->
+  <canvas id="fireworks"></canvas>
 
   <div class="wrap">
     <div class="card">
@@ -210,7 +222,119 @@
       fillWall(110);
       makeConfetti(220);
       setTimeout(()=>makeConfetti(140), 900);
+      burstFireworks(4); // boom extra
     });
+
+    // =========================
+    //      FIREWORKS 🎆
+    // =========================
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    let w, h;
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const fireworks = [];
+    const particles = [];
+
+    function random(min, max) { return Math.random() * (max - min) + min; }
+
+    class Firework {
+      constructor(x, y) {
+        this.x = x;
+        this.y = h + 10;
+        this.targetY = y;
+        this.speed = random(5, 9);
+        this.exploded = false;
+      }
+      update() {
+        this.y -= this.speed;
+        if (this.y <= this.targetY && !this.exploded) {
+          this.exploded = true;
+          explode(this.x, this.y);
+        }
+      }
+      draw() {
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.fillRect(this.x, this.y, 2, 10);
+      }
+    }
+
+    function explode(x, y) {
+      const count = 42;
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x, y,
+          angle: Math.random() * Math.PI * 2,
+          speed: random(2.2, 6.8),
+          life: 70,
+          color: `hsl(${Math.random() * 360}, 100%, 62%)`
+        });
+      }
+    }
+
+    function updateParticles() {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += Math.cos(p.angle) * p.speed;
+        p.y += Math.sin(p.angle) * p.speed;
+        p.speed *= 0.98;       // rallenta
+        p.life--;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+
+    function drawParticles() {
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = fireworks.length - 1; i >= 0; i--) {
+        const f = fireworks[i];
+        f.update();
+        f.draw();
+        if (f.exploded) fireworks.splice(i, 1);
+      }
+
+      updateParticles();
+      drawParticles();
+
+      requestAnimationFrame(loop);
+    }
+
+    function launchRandom() {
+      fireworks.push(new Firework(random(40, w - 40), random(110, h * 0.55)));
+    }
+
+    function burstFireworks(n=3) {
+      for (let i=0;i<n;i++){
+        setTimeout(launchRandom, i * 120);
+      }
+    }
+
+    // Fuochi automatici (sparo continuo)
+    setInterval(launchRandom, 750);
+
+    // Extra boom quando tocchi la pagina (anche da telefono)
+    window.addEventListener("pointerdown", (e) => {
+      const x = e.clientX ?? (w/2);
+      const y = e.clientY ?? (h/2);
+      fireworks.push(new Firework(x, y));
+      burstFireworks(2);
+    });
+
+    loop();
   </script>
 </body>
 </html>
