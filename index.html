@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buon Anno Amore! 💖🎆</title>
+  <style>
+    :root { --bg1:#0b1026; --bg2:#2a0b3f; --card: rgba(255,255,255,.10); --txt: #fff; }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; color:var(--txt);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1000px 800px at 20% 20%, #ff4fd8 0%, transparent 50%),
+                  radial-gradient(900px 700px at 80% 30%, #4df3ff 0%, transparent 55%),
+                  linear-gradient(135deg,var(--bg1),var(--bg2));
+      overflow:hidden;
+    }
+    .wrap{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+      z-index:2;
+    }
+    .card{
+      width:min(720px, 92vw);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 24px;
+      padding: 22px 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      text-align:center;
+    }
+    h1{
+      margin: 0 0 10px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height:1.05;
+      letter-spacing: .3px;
+      text-shadow: 0 6px 18px rgba(0,0,0,.25);
+    }
+    .sub{
+      margin: 0 0 16px;
+      font-size: clamp(16px, 2.6vw, 20px);
+      opacity:.95;
+    }
+    .emoji-wall{
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap: 8px;
+      padding: 14px 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px dashed rgba(255,255,255,.22);
+      margin: 12px 0 18px;
+      user-select:none;
+    }
+    .e{
+      font-size: 26px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.25));
+      animation: pop 1.2s ease-in-out infinite;
+    }
+    .e:nth-child(3n){ animation-delay:.15s }
+    .e:nth-child(4n){ animation-delay:.28s }
+    .e:nth-child(5n){ animation-delay:.37s }
+    @keyframes pop{
+      0%,100%{ transform: translateY(0) rotate(0deg) scale(1); }
+      50%{ transform: translateY(-6px) rotate(6deg) scale(1.08); }
+    }
+
+    .msg{
+      font-size: clamp(16px, 2.7vw, 20px);
+      line-height:1.35;
+      margin: 0 0 16px;
+    }
+
+    .btns{
+      display:flex; flex-wrap:wrap; gap:12px;
+      justify-content:center;
+      margin-top: 10px;
+    }
+    .btn{
+      appearance:none; border:0; cursor:pointer;
+      padding: 12px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      transition: transform .08s ease, filter .15s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .btn:active{ transform: scale(.98) }
+    .wa{
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color:#062b1c;
+    }
+    .spark{
+      background: linear-gradient(135deg, #ffd36b, #ff4fd8);
+      color:#2c0a26;
+    }
+
+    /* coriandoli */
+    .confetti{
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      pointer-events:none;
+      z-index:1;
+    }
+    .c{
+      position:absolute;
+      top:-12px;
+      width:10px; height:14px;
+      opacity:.95;
+      transform: rotate(25deg);
+      animation: fall linear infinite;
+      border-radius:2px;
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(720deg);
+      }
+    }
+    .tiny{
+      opacity:.85;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="confetti" id="confetti"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>Buon Anno amore! 💖🎆</h1>
+      <p class="sub">Attenzione: contiene una quantità illegale di faccine 😄🚨💖</p>
+
+      <div class="emoji-wall" id="wall" aria-label="emoji wall"></div>
+
+      <p class="msg" id="msg">
+        Sei la mia parte preferita di ogni anno… e di ogni giorno. 🥰<br/>
+        Facciamo un anno pieno di risate, baci rubati e abbracci lunghi. 💋🤍<br/>
+        (E io rivendico ufficialmente il diritto a rubarti un bacio extra ogni giorno 😜💘)
+      </p>
+
+      <div class="btns">
+        <a class="btn wa" id="waBtn" target="_blank" rel="noopener">
+          💬 Mandaglielo su WhatsApp
+        </a>
+        <button class="btn spark" id="moreBtn" type="button">
+          🎇 Più emoji!
+        </button>
+      </div>
+
+      <div class="tiny">
+        P.S. Se vuoi cambiare il testo WhatsApp, cerca <b>TESTO_WA</b> nel file 😉
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Emoji wall ---
+    const emojis = ["🥰","😍","😘","💖","💘","💞","💋","🎆","🎇","✨","🥂","🍾","😄","😂","😜","🤍","🌙","⭐","🫶","🌹","🎉","💫","🧸","🍓","🍫","🐻","😻","🤭","😇","💌","🪩","🎊"];
+    const wall = document.getElementById("wall");
+
+    function fillWall(count=72){
+      wall.innerHTML = "";
+      for(let i=0;i<count;i++){
+        const span = document.createElement("span");
+        span.className = "e";
+        span.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        wall.appendChild(span);
+      }
+    }
+    fillWall(84);
+
+    // --- WhatsApp link (TESTO_WA) ---
+    const testoWA = "❤️🎆 Buon Anno amore mio! Sei la mia parte preferita di ogni anno… e di ogni giorno. " +
+                    "Questo nuovo anno lo voglio pieno di risate, abbracci lunghi e baci rubati (sì, anche extra 😜💋). " +
+                    "Ti amo 💖🥂✨";
+    const waLink = "https://api.whatsapp.com/send?text=" + encodeURIComponent(testoWA);
+    document.getElementById("waBtn").href = waLink;
+
+    // --- Confetti ---
+    const confetti = document.getElementById("confetti");
+    function makeConfetti(n=110){
+      confetti.innerHTML = "";
+      for(let i=0;i<n;i++){
+        const d = document.createElement("div");
+        d.className = "c";
+        d.style.left = Math.random()*100 + "vw";
+        d.style.animationDuration = (3 + Math.random()*4) + "s";
+        d.style.animationDelay = (Math.random()*2) + "s";
+        d.style.background = `hsl(${Math.floor(Math.random()*360)}, 95%, 65%)`;
+        d.style.width = (6 + Math.random()*10) + "px";
+        d.style.height = (8 + Math.random()*14) + "px";
+        d.style.opacity = (0.55 + Math.random()*0.45);
+        confetti.appendChild(d);
+      }
+    }
+    makeConfetti(140);
+
+    // --- Button: more emojis + confetti burst ---
+    document.getElementById("moreBtn").addEventListener("click", () => {
+      fillWall(110);
+      makeConfetti(220);
+      setTimeout(()=>makeConfetti(140), 900);
+    });
+  </script>
+</body>
+</html>
